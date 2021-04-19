@@ -14,9 +14,12 @@ class TestAuth(unittest.TestCase):
         credentials = HTTPBasicCredentials(username="foo", password="bar")
         config.basic_auth_username = "foo"
         config.basic_auth_password = "bar"
-        # when/then
+        # when
         auth.authorize_request(credentials)
-        # assert no exception was thrown
+        # then assert no exception was thrown
+        # cleanup
+        config.basic_auth_username = None
+        config.basic_auth_password = None
 
     def test_unsuccessful_authorize_request(self):
         # setup
@@ -25,3 +28,6 @@ class TestAuth(unittest.TestCase):
         config.basic_auth_password = "incorrect"
         # when/then
         self.assertRaises(HTTPException, auth.authorize_request, credentials)
+        # cleanup
+        config.basic_auth_username = None
+        config.basic_auth_password = None
