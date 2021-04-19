@@ -1,8 +1,12 @@
+from asyncio import sleep
 from enum import Enum
 
 import httpx
+import pifacedigitalio
 
 from app.api.config import config
+
+PULSE_LENGTH = 0.5
 
 
 class TargetState(Enum):
@@ -19,6 +23,11 @@ class CurrentState(Enum):
 
 
 class GateService:
+
+    def __init__(self):
+        self.pfd = pifacedigitalio.PiFaceDigital()
+        self.last_stable_state = await self.get_current_gate_state()
+
     async def request_gate_movement(self, target: TargetState) -> None:
         state = await self.get_current_gate_state()
         if target == TargetState.OPEN:
@@ -37,8 +46,23 @@ class GateService:
                 self._move_gate(TargetState.CLOSED)
 
     async def get_current_gate_state(self) -> CurrentState:
-        return CurrentState.CLOSED
-        # todo: implement lookup from hardware
+        # FAAC-E124 Configuration
+        # OUT 1: OPEN or PAUSE (o1 = 05)
+        # OUT 2: CLOSED (o2 = 06)
+        out1_open = self.pfd.input_pins[0].value
+        out2_closed = self.pfd.input_pins[1].value
+        if out1_open:
+            self.last_stable_state = CurrentState.OPEN
+            return CurrentState.OPEN
+        elif out2_closed:
+            self.last_stable_state = CurrentState.CLOSED
+            return CurrentState.CLOSED
+        elif self.last_stable_state == CurrentState.OPEN:
+            return CurrentState.CLOSING
+        elif self.last_stable_state == CurrentState.CLOSED:
+            return CurrentState.OPENING
+        else:
+            return CurrentState.STOPPED
 
     def _send_target_state(self, target: TargetState) -> bool:
         params = {'accessoryId': config.accessory_id, 'targetdoorstate': target.value}
@@ -51,5 +75,9 @@ class GateService:
         return True if r.status_code == 200 else False
 
     def _move_gate(self, target: TargetState) -> None:
+        # FAAC-E124 Configuration
+        # IN 1: OPEN A (LO = E or EP)
+        self.pfd.relays[0].value = 1
+        await sleep(PULSE_LENGTH)
+        self.pfd.relays[0].value = 0
         return
-        # todo: implement operation of hardware
