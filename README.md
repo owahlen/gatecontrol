@@ -1,5 +1,5 @@
 # Gatecontrol
-Microservice to operate a gate with a Raspbery Pi.
+REST service for a Raspberry Pi operating an FAAC-E124 gate controller.
 
 Based on 
 * [fastapi](https://github.com/paurakhsharma/python-microservice-fastapi)
