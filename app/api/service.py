@@ -25,7 +25,7 @@ class CurrentState(Enum):
 class GateService:
 
     def __init__(self):
-        self.pfd = pifacedigitalio.PiFaceDigital()
+        self.pfd = self._init_piface()
         self.last_stable_state = await self.get_current_gate_state()
 
     async def request_gate_movement(self, target: TargetState) -> None:
@@ -63,6 +63,21 @@ class GateService:
             return CurrentState.OPENING
         else:
             return CurrentState.STOPPED
+
+    def _init_piface(self) -> pifacedigitalio.PiFaceDigital():
+        pfd = pifacedigitalio.PiFaceDigital()
+        # relay[0] sends a short pulse to operate the gate. 0 is the inactive state.
+        self.pfd.relays[0].value = 0
+        # register event listener on input_pins[0] and input_pins[1]
+        listener = pifacedigitalio.InputEventListener(chip=pfd)
+        listener.register(0, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
+        listener.register(1, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
+        listener.activate()
+        return pfd
+
+    def _send_current_state_update(self, event):
+        state = await self.get_current_gate_state()
+        self._send_current_state(state)
 
     def _send_target_state(self, target: TargetState) -> bool:
         params = {'accessoryId': config.accessory_id, 'targetdoorstate': target.value}
