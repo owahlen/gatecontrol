@@ -8,7 +8,7 @@ from starlette.requests import Request
 from app.api.config import config
 
 
-class ConfigurableHTTPBasic():
+class ConfigurableHTTPBasic:
     def __init__(self):
         self.http_basic = HTTPBasic()
 

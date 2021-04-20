@@ -70,5 +70,5 @@ class TestGateRouter(unittest.TestCase):
         config.basic_auth_password = None
 
     def get_basic_auth(self, username: str, password: str) -> str:
-        userAndPass = b64encode(f"{username}:{password}".encode('utf-8')).decode("ascii")
-        return "Basic {}".format(userAndPass)
+        user_and_pass = b64encode(f"{username}:{password}".encode('utf-8')).decode("ascii")
+        return "Basic {}".format(user_and_pass)

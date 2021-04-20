@@ -12,6 +12,7 @@ gate = APIRouter()
 security = ConfigurableHTTPBasic()
 gate_service = GateService()
 
+
 @gate.get('', response_model=GateOut)
 async def get_gate_state():
     state = await gate_service.get_current_gate_state()
