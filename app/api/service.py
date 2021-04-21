@@ -25,7 +25,7 @@ class CurrentState(Enum):
 class GateService:
 
     def __init__(self):
-        self.pfd = self._init_piface()
+        self._init_piface()
         self.last_stable_state = self._get_current_gate_state()
 
     @staticmethod
@@ -52,23 +52,22 @@ class GateService:
     async def get_current_gate_state(self) -> CurrentState:
         return self._get_current_gate_state()
 
-    def _init_piface(self) -> pifacedigitalio.PiFaceDigital:
-        pfd = pifacedigitalio.PiFaceDigital()
+    def _init_piface(self):
+        self.piface = pifacedigitalio.PiFaceDigital()
         # relay[0] sends a short pulse to operate the gate. 0 is the inactive state.
-        self.pfd.relays[0].value = 0
+        self.piface.relays[0].value = 0
         # register event listener on input_pins[0] and input_pins[1]
-        listener = pifacedigitalio.InputEventListener(chip=pfd)
-        listener.register(0, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
-        listener.register(1, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
-        listener.activate()
-        return pfd
+        self.event_listener = pifacedigitalio.InputEventListener(chip=self.piface)
+        self.event_listener.register(0, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
+        self.event_listener.register(1, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
+        self.event_listener.activate()
 
     def _get_current_gate_state(self) -> CurrentState:
         # FAAC-E124 Configuration
         # OUT 1: OPEN or PAUSE (o1 = 05)
         # OUT 2: CLOSED (o2 = 06)
-        out1_open = self.pfd.input_pins[0].value
-        out2_closed = self.pfd.input_pins[1].value
+        out1_open = self.piface.input_pins[0].value
+        out2_closed = self.piface.input_pins[1].value
         if out1_open:
             self.last_stable_state = CurrentState.OPEN
             return CurrentState.OPEN
@@ -99,7 +98,7 @@ class GateService:
     async def _move_gate(self, target: TargetState) -> None:
         # FAAC-E124 Configuration
         # IN 1: OPEN A (LO = E or EP)
-        self.pfd.relays[0].value = 1
+        self.piface.relays[0].value = 1
         await sleep(PULSE_LENGTH)
-        self.pfd.relays[0].value = 0
+        self.piface.relays[0].value = 0
         return
