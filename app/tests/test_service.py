@@ -1,12 +1,13 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from aiounittest import async_test
 
 from app.api.config import DEFAULT_WEBHOOK_URL, DEFAULT_ACCESSORY_ID
 from app.api.service import GateService, TargetState, CurrentState
-from app.tests.testing_utils import AsyncMock
 
+# hardware initialization of GateService needs to be disabled before GateService is instantiated
+GateService._init_piface = MagicMock()
 
 @patch('app.api.service.httpx')
 class TestService(unittest.TestCase):
@@ -17,7 +18,7 @@ class TestService(unittest.TestCase):
     @async_test
     async def test_request_gate_movement_open(self, httpx_mock):
         # setup
-        self.gate_service.get_current_gate_state = AsyncMock(return_value=CurrentState.OPEN)
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPEN)
         # when
         await self.gate_service.request_gate_movement(TargetState.OPEN)
         # then
@@ -30,7 +31,7 @@ class TestService(unittest.TestCase):
     @async_test
     async def test_request_gate_movement_opening(self, httpx_mock):
         # setup
-        self.gate_service.get_current_gate_state = AsyncMock(return_value=CurrentState.CLOSED)
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSED)
         # when
         await self.gate_service.request_gate_movement(TargetState.OPEN)
         # then
@@ -43,7 +44,7 @@ class TestService(unittest.TestCase):
     @async_test
     async def test_request_gate_movement_closed(self, httpx_mock):
         # setup
-        self.gate_service.get_current_gate_state = AsyncMock(return_value=CurrentState.CLOSED)
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSED)
         # when
         await self.gate_service.request_gate_movement(TargetState.CLOSED)
         # then
@@ -56,7 +57,7 @@ class TestService(unittest.TestCase):
     @async_test
     async def test_request_gate_movement_closing(self, httpx_mock):
         # setup
-        self.gate_service.get_current_gate_state = AsyncMock(return_value=CurrentState.OPEN)
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPEN)
         # when
         await self.gate_service.request_gate_movement(TargetState.CLOSED)
         # then

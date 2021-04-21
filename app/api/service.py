@@ -28,6 +28,10 @@ class GateService:
         self.pfd = self._init_piface()
         self.last_stable_state = self._get_current_gate_state()
 
+    @staticmethod
+    def create():
+        return GateService()
+
     async def request_gate_movement(self, target: TargetState) -> None:
         state = self._get_current_gate_state()
         if target == TargetState.OPEN:
@@ -48,7 +52,7 @@ class GateService:
     async def get_current_gate_state(self) -> CurrentState:
         return self._get_current_gate_state()
 
-    def _init_piface(self) -> pifacedigitalio.PiFaceDigital():
+    def _init_piface(self) -> pifacedigitalio.PiFaceDigital:
         pfd = pifacedigitalio.PiFaceDigital()
         # relay[0] sends a short pulse to operate the gate. 0 is the inactive state.
         self.pfd.relays[0].value = 0

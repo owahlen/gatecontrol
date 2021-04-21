@@ -1,6 +1,11 @@
 import unittest
 from base64 import b64encode
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+from app.tests.testing_utils import AsyncMock
+
+# hardware initialization of GateService needs to be disabled before GateService is instantiated
+from app.api.service import GateService
+GateService._init_piface = MagicMock()
 
 from fastapi.testclient import TestClient
 from starlette import status
@@ -8,7 +13,6 @@ from starlette import status
 from app.api.config import config
 from app.api.service import TargetState
 from app.main import app
-from app.tests.testing_utils import AsyncMock
 
 
 @patch('app.api.gate.gate_service', new_callable=AsyncMock)
