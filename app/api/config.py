@@ -27,7 +27,7 @@ class Config:
         self.webhook_url = os.getenv(WEBHOOK_URL, DEFAULT_WEBHOOK_URL)
         self.accessory_id = os.getenv(ACCESSORY_ID, DEFAULT_ACCESSORY_ID)
         if not self.is_basic_auth_active():
-            logger.warn(
+            logger.warning(
                 "BasicAuth deactivated. Set BASIC_AUTH_USERNAME and BASIC_AUTH_PASSWORD environment variables.")
 
     def is_basic_auth_active(self) -> bool:
