@@ -87,10 +87,20 @@ class TestService(unittest.TestCase):
         httpx_mock.get.assert_any_call(expected_url, params=expected_current_params)
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0)])  # one pulse of the relay
 
+    @async_test
+    async def test_get_current_gate_state(self, httpx_mock):
+        # setup
+        self.piface_mock.input_pins[0].value = 1  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0  # CLOSED
+        # when
+        current_state = await self.gate_service.get_current_gate_state()
+        # then
+        self.assertEqual(CurrentState.OPEN, current_state)
+
     def test_open_event(self, httpx_mock):
         # setup
-        self.piface_mock.input_pins[0].value = 1 # OPEN or PAUSED
-        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        self.piface_mock.input_pins[0].value = 1  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0  # CLOSED
         # when
         self.gate_service._send_current_state_update(None)
         # then
@@ -100,8 +110,8 @@ class TestService(unittest.TestCase):
 
     def test_closed_event(self, httpx_mock):
         # setup
-        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
-        self.piface_mock.input_pins[1].value = 1 # CLOSED
+        self.piface_mock.input_pins[0].value = 0  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 1  # CLOSED
         # when
         self.gate_service._send_current_state_update(None)
         # then
@@ -112,8 +122,8 @@ class TestService(unittest.TestCase):
     def test_opening_event(self, httpx_mock):
         # setup
         self.gate_service.last_stable_state = CurrentState.CLOSED
-        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
-        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        self.piface_mock.input_pins[0].value = 0  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0  # CLOSED
         # when
         self.gate_service._send_current_state_update(None)
         # then
@@ -124,8 +134,8 @@ class TestService(unittest.TestCase):
     def test_closing_event(self, httpx_mock):
         # setup
         self.gate_service.last_stable_state = CurrentState.OPEN
-        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
-        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        self.piface_mock.input_pins[0].value = 0  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0  # CLOSED
         # when
         self.gate_service._send_current_state_update(None)
         # then
@@ -136,8 +146,8 @@ class TestService(unittest.TestCase):
     def test_stopped_event(self, httpx_mock):
         # setup
         # self.gate_service.last_stable_state is not initialized
-        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
-        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        self.piface_mock.input_pins[0].value = 0  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0  # CLOSED
         # when
         self.gate_service._send_current_state_update(None)
         # then
@@ -149,8 +159,8 @@ class TestService(unittest.TestCase):
     def test_invalid_event(self, httpx_mock):
         # setup
         self.gate_service.last_stable_state = CurrentState.CLOSED
-        self.piface_mock.input_pins[0].value = 1 # OPEN or PAUSED
-        self.piface_mock.input_pins[1].value = 1 # CLOSED
+        self.piface_mock.input_pins[0].value = 1  # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 1  # CLOSED
         # when
         self.gate_service._send_current_state_update(None)
         # then

@@ -29,10 +29,6 @@ class GateService:
         self.last_stable_state = None
         self.last_stable_state = self._get_current_gate_state()
 
-    @staticmethod
-    def create():
-        return GateService()
-
     async def request_gate_movement(self, target: TargetState) -> None:
         state = self._get_current_gate_state()
         if target == TargetState.OPEN:
