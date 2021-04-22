@@ -3,7 +3,7 @@ from fastapi.security import HTTPBasicCredentials
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK
 
-from app.api import auth, service
+from app.api import auth
 from app.api.auth import ConfigurableHTTPBasic
 from app.api.models import GateOut, GateIn
 from app.api.service import GateService

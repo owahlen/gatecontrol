@@ -1,12 +1,11 @@
 import unittest
 from base64 import b64encode
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-from app.api import service
 from app.tests.testing_utils import AsyncMock
 
-# GateService needs to be mocked before it is instantiated by the import of gate.py
-service.GateService = MagicMock()
+with patch('app.api.service.GateService'):
+    import app.api.gate
 
 from fastapi.testclient import TestClient
 from starlette import status
