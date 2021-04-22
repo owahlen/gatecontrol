@@ -26,6 +26,7 @@ class GateService:
 
     def __init__(self):
         self._init_piface()
+        self.last_stable_state = None
         self.last_stable_state = self._get_current_gate_state()
 
     @staticmethod
@@ -68,15 +69,15 @@ class GateService:
         # OUT 2: CLOSED (o2 = 06)
         out1_open = self.piface.input_pins[0].value
         out2_closed = self.piface.input_pins[1].value
-        if out1_open:
+        if out1_open and not out2_closed:
             self.last_stable_state = CurrentState.OPEN
             return CurrentState.OPEN
-        elif out2_closed:
+        elif not out1_open and out2_closed:
             self.last_stable_state = CurrentState.CLOSED
             return CurrentState.CLOSED
-        elif self.last_stable_state == CurrentState.OPEN:
+        elif not out1_open and not out2_closed and self.last_stable_state == CurrentState.OPEN:
             return CurrentState.CLOSING
-        elif self.last_stable_state == CurrentState.CLOSED:
+        elif not out1_open and not out2_closed and self.last_stable_state == CurrentState.CLOSED:
             return CurrentState.OPENING
         else:
             return CurrentState.STOPPED

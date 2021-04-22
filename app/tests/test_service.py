@@ -15,11 +15,8 @@ class TestService(unittest.TestCase):
         # create piface_mock
         self.piface_mock = MagicMock()
         self.relays0_mock = PropertyMock()
-        self.input_pin1_mock = PropertyMock()
-        self.input_pin2_mock = PropertyMock()
         type(self.piface_mock.relays[0]).value = self.relays0_mock
-        type(self.piface_mock.input_pins[0]).value = self.input_pin1_mock
-        type(self.piface_mock.input_pins[1]).value = self.input_pin2_mock
+        self.piface_mock.input_pins = [type("", (), dict(value=0))() for i in range(8)]
         # create event_listener_mock
         self.event_listener_mock = MagicMock()
         with patch('pifacedigitalio.PiFaceDigital', return_value=self.piface_mock):
@@ -89,3 +86,74 @@ class TestService(unittest.TestCase):
         httpx_mock.get.assert_any_call(expected_url, params=expected_target_params)
         httpx_mock.get.assert_any_call(expected_url, params=expected_current_params)
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0)])  # one pulse of the relay
+
+    def test_open_event(self, httpx_mock):
+        # setup
+        self.piface_mock.input_pins[0].value = 1 # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        # when
+        self.gate_service._send_current_state_update(None)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.OPEN.value}
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+
+    def test_closed_event(self, httpx_mock):
+        # setup
+        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 1 # CLOSED
+        # when
+        self.gate_service._send_current_state_update(None)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.CLOSED.value}
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+
+    def test_opening_event(self, httpx_mock):
+        # setup
+        self.gate_service.last_stable_state = CurrentState.CLOSED
+        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        # when
+        self.gate_service._send_current_state_update(None)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.OPENING.value}
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+
+    def test_closing_event(self, httpx_mock):
+        # setup
+        self.gate_service.last_stable_state = CurrentState.OPEN
+        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        # when
+        self.gate_service._send_current_state_update(None)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.CLOSING.value}
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+
+    def test_stopped_event(self, httpx_mock):
+        # setup
+        # self.gate_service.last_stable_state is not initialized
+        self.piface_mock.input_pins[0].value = 0 # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 0 # CLOSED
+        # when
+        self.gate_service._send_current_state_update(None)
+        # then
+        self.assertEqual(CurrentState.STOPPED, self.gate_service.last_stable_state)
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.STOPPED.value}
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+
+    def test_invalid_event(self, httpx_mock):
+        # setup
+        self.gate_service.last_stable_state = CurrentState.CLOSED
+        self.piface_mock.input_pins[0].value = 1 # OPEN or PAUSED
+        self.piface_mock.input_pins[1].value = 1 # CLOSED
+        # when
+        self.gate_service._send_current_state_update(None)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.STOPPED.value}
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
