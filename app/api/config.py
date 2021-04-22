@@ -2,20 +2,23 @@ import os
 
 from app.api.logger import logger
 
-SERVER_ADDRESS = 'SERVER_ADDRESS'
+HOST = 'HOST'
+PORT = 'PORT'
 BASIC_AUTH_USERNAME = 'BASIC_AUTH_USERNAME'
 BASIC_AUTH_PASSWORD = 'BASIC_AUTH_PASSWORD'
 WEBHOOK_URL = 'WEBHOOK_URL'
 ACCESSORY_ID = 'ACCESSORY_ID'
 
-DEFAULT_SERVER_ADDRESS = ":8080"
+DEFAULT_HOST = "0.0.0.0"
+DEFAULT_PORT = "8000"
 DEFAULT_WEBHOOK_URL = "http://localhost:51828"
 DEFAULT_ACCESSORY_ID = "gatecontrol"
 
 
 class Config:
     def __init__(self):
-        self.server_address = os.getenv(SERVER_ADDRESS, DEFAULT_SERVER_ADDRESS)
+        self.host = os.getenv(HOST, DEFAULT_HOST)
+        self.port = os.getenv(PORT, DEFAULT_PORT)
         self.basic_auth_username = os.getenv(BASIC_AUTH_USERNAME)
         self.basic_auth_password = os.getenv(BASIC_AUTH_PASSWORD)
         self.webhook_url = os.getenv(WEBHOOK_URL, DEFAULT_WEBHOOK_URL)

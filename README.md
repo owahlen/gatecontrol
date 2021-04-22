@@ -8,3 +8,7 @@ Based on
      IN 1: OPEN A (LO = E or EP)
      OUT 1: OPEN or PAUSE (o1 = 05)
      OUT 2: CLOSED (o2 = 06)
+
+## Environment Variables
+Defaults are shown in brackets
+SERVER_ADDRESS (:8080): 
