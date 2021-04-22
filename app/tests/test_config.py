@@ -34,9 +34,9 @@ class TestConfig(unittest.TestCase):
         self.assertEqual('testaccessory', test_config.accessory_id)
         self.assertTrue(test_config.is_basic_auth_active())
         # cleanup
-        os.unsetenv(HOST)
-        os.unsetenv(PORT)
-        os.unsetenv(BASIC_AUTH_USERNAME)
-        os.unsetenv(BASIC_AUTH_PASSWORD)
-        os.unsetenv(WEBHOOK_URL)
-        os.unsetenv(ACCESSORY_ID)
+        del os.environ[HOST]
+        del os.environ[PORT]
+        del os.environ[BASIC_AUTH_USERNAME]
+        del os.environ[BASIC_AUTH_PASSWORD]
+        del os.environ[WEBHOOK_URL]
+        del os.environ[ACCESSORY_ID]

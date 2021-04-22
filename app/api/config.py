@@ -17,6 +17,9 @@ DEFAULT_ACCESSORY_ID = "gatecontrol"
 
 class Config:
     def __init__(self):
+        self.reload()
+
+    def reload(self):
         self.host = os.getenv(HOST, DEFAULT_HOST)
         self.port = os.getenv(PORT, DEFAULT_PORT)
         self.basic_auth_username = os.getenv(BASIC_AUTH_USERNAME)
