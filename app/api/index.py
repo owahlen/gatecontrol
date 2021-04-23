@@ -5,6 +5,6 @@ index = APIRouter()
 
 
 @index.get('/')
-async def redirect():
+async def redirect_to_gate():
     response = RedirectResponse(url='/gate')
     return response

@@ -31,3 +31,7 @@ The basic authentication is activated if both `BASIC_AUTH_USERNAME` and `BASIC_A
 * `BASIC_AUTH_PASSWORD`: The password that must be passed to the service in a basic auth header
 * `WEBHOOK_URL` (http://localhost:51828): The URL of the homebridge running the _Homebridge Webhooks_ plugin
 * `ACCESSORY_ID` (gatecontrol): The accessory ID as configured as gate in the _Homebridge Webhooks_ plugin
+
+## API Documentation
+The service utilizes the [FastAPI](https://fastapi.tiangolo.com/) framework.
+It generates an OpenAPI under the URL `http://HOST:PORT/docs` e.g. http://localhost:8000/docs.

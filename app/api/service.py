@@ -9,12 +9,12 @@ from app.api.config import config
 PULSE_LENGTH = 0.5
 
 
-class TargetState(Enum):
+class TargetState(int, Enum):
     OPEN = 0
     CLOSED = 1
 
 
-class CurrentState(Enum):
+class CurrentState(int, Enum):
     OPEN = 0
     CLOSED = 1
     OPENING = 2
