@@ -11,6 +11,6 @@ app.include_router(gate, prefix='/gate', tags=['gate'])
 
 def init():
     if __name__ == "__main__":
-        uvicorn.run(app, host=config.host, port=config.port)
+        uvicorn.run(app, host=config.host, port=int(config.port))
 
 init()

@@ -19,7 +19,7 @@ class TestAuth(unittest.TestCase):
                     # when
                     main.init()
         # then
-        uvicorn_run_mock.run.assert_called_once_with(main.app, host='10.0.0.1', port='1234')
+        uvicorn_run_mock.run.assert_called_once_with(main.app, host='10.0.0.1', port=int('1234'))
         # cleanup
         del os.environ[HOST]
         del os.environ[PORT]
@@ -34,4 +34,4 @@ class TestAuth(unittest.TestCase):
                     # when
                     main.init()
         # then
-        uvicorn_run_mock.run.assert_called_once_with(main.app, host=DEFAULT_HOST, port=DEFAULT_PORT)
+        uvicorn_run_mock.run.assert_called_once_with(main.app, host=DEFAULT_HOST, port=int(DEFAULT_PORT))
