@@ -32,60 +32,124 @@ class TestService(unittest.TestCase):
         self.event_listener_mock.activate.assert_called_once()
 
     @async_test
-    async def test_request_gate_movement_open(self, httpx_mock):
+    async def test_request_gate_movement_open_to_open(self, httpx_mock):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPEN)
         # when
         await self.gate_service.request_gate_movement(TargetState.OPEN)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_target_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'targetdoorstate': TargetState.OPEN.value}
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.OPEN.value}
-        httpx_mock.get.assert_any_call(expected_url, params=expected_target_params)
-        httpx_mock.get.assert_any_call(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
         self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
     @async_test
-    async def test_request_gate_movement_opening(self, httpx_mock):
+    async def test_request_gate_movement_closed_to_open(self, httpx_mock):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSED)
         # when
         await self.gate_service.request_gate_movement(TargetState.OPEN)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_target_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'targetdoorstate': TargetState.OPEN.value}
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.OPENING.value}
-        httpx_mock.get.assert_any_call(expected_url, params=expected_target_params)
-        httpx_mock.get.assert_any_call(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0)])  # one pulse of the relay
 
     @async_test
-    async def test_request_gate_movement_closed(self, httpx_mock):
+    async def test_request_gate_movement_closed_to_closed(self, httpx_mock):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSED)
         # when
         await self.gate_service.request_gate_movement(TargetState.CLOSED)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_target_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'targetdoorstate': TargetState.CLOSED.value}
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.CLOSED.value}
-        httpx_mock.get.assert_any_call(expected_url, params=expected_target_params)
-        httpx_mock.get.assert_any_call(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.CLOSED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
         self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
     @async_test
-    async def test_request_gate_movement_closing(self, httpx_mock):
+    async def test_request_gate_movement_open_to_closed(self, httpx_mock):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPEN)
         # when
         await self.gate_service.request_gate_movement(TargetState.CLOSED)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_target_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'targetdoorstate': TargetState.CLOSED.value}
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.CLOSING.value}
-        httpx_mock.get.assert_any_call(expected_url, params=expected_target_params)
-        httpx_mock.get.assert_any_call(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.CLOSED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0)])  # one pulse of the relay
+
+    @async_test
+    async def test_request_gate_movement_opening_to_open(self, httpx_mock):
+        # setup
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPENING)
+        # when
+        await self.gate_service.request_gate_movement(TargetState.OPEN)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
+        self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
+
+    @async_test
+    async def test_request_gate_movement_opening_to_closed(self, httpx_mock):
+        # setup
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPENING)
+        # when
+        await self.gate_service.request_gate_movement(TargetState.CLOSED)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
+        self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
+
+    @async_test
+    async def test_request_gate_movement_closing_to_closed(self, httpx_mock):
+        # setup
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSING)
+        # when
+        await self.gate_service.request_gate_movement(TargetState.CLOSED)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.CLOSED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
+        self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
+
+    @async_test
+    async def test_request_gate_movement_closing_to_open(self, httpx_mock):
+        # setup
+        self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSING)
+        # when
+        await self.gate_service.request_gate_movement(TargetState.OPEN)
+        # then
+        expected_url = DEFAULT_WEBHOOK_URL
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.CLOSED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
+        self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
     @async_test
     async def test_get_current_gate_state(self, httpx_mock):
@@ -105,8 +169,12 @@ class TestService(unittest.TestCase):
         self.gate_service._send_current_state_update(None)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.OPEN.value}
-        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value,
+            'currentdoorstate': CurrentState.OPEN.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
 
     def test_closed_event(self, httpx_mock):
         # setup
@@ -116,8 +184,12 @@ class TestService(unittest.TestCase):
         self.gate_service._send_current_state_update(None)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.CLOSED.value}
-        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.CLOSED.value,
+            'currentdoorstate': CurrentState.CLOSED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
 
     def test_opening_event(self, httpx_mock):
         # setup
@@ -128,8 +200,12 @@ class TestService(unittest.TestCase):
         self.gate_service._send_current_state_update(None)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.OPENING.value}
-        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value,
+            'currentdoorstate': CurrentState.CLOSING.value  # this is a workaround for a homekit bug
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
 
     def test_closing_event(self, httpx_mock):
         # setup
@@ -140,8 +216,12 @@ class TestService(unittest.TestCase):
         self.gate_service._send_current_state_update(None)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.CLOSING.value}
-        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.CLOSED.value,
+            'currentdoorstate': CurrentState.CLOSING.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
 
     def test_stopped_event(self, httpx_mock):
         # setup
@@ -153,8 +233,12 @@ class TestService(unittest.TestCase):
         # then
         self.assertEqual(CurrentState.STOPPED, self.gate_service.last_stable_state)
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.STOPPED.value}
-        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value,
+            'currentdoorstate': CurrentState.STOPPED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)
 
     def test_invalid_event(self, httpx_mock):
         # setup
@@ -165,5 +249,9 @@ class TestService(unittest.TestCase):
         self.gate_service._send_current_state_update(None)
         # then
         expected_url = DEFAULT_WEBHOOK_URL
-        expected_current_params = {'accessoryId': DEFAULT_ACCESSORY_ID, 'currentdoorstate': CurrentState.STOPPED.value}
-        httpx_mock.get.assert_called_once_with(expected_url, params=expected_current_params)
+        expected_params = {
+            'accessoryId': DEFAULT_ACCESSORY_ID,
+            'targetdoorstate': TargetState.OPEN.value,
+            'currentdoorstate': CurrentState.STOPPED.value
+        }
+        httpx_mock.get.assert_called_once_with(expected_url, params=expected_params)

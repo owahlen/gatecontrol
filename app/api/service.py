@@ -1,3 +1,4 @@
+import typing
 from asyncio import sleep
 from enum import Enum
 
@@ -29,22 +30,28 @@ class GateService:
         self.last_stable_state = None
         self.last_stable_state = self._get_current_gate_state()
 
-    async def request_gate_movement(self, target: TargetState) -> None:
+    async def request_gate_movement(self, target_state: TargetState) -> None:
         state = self._get_current_gate_state()
-        if target == TargetState.OPEN:
-            self._send_target_state(TargetState.OPEN)
-            if state == CurrentState.OPEN:
-                self._send_current_state(CurrentState.OPEN)
-            else:
-                self._send_current_state(CurrentState.OPENING)
+        if target_state == TargetState.OPEN:
+            if state == CurrentState.CLOSING:
+                # requesting to open the gate while it is closing will reset the target to closed
+                self._send_state(target_state=TargetState.CLOSED, current_state=None)
+            elif state == CurrentState.CLOSED or state == CurrentState.STOPPED:
+                # only open the gate if it is currently closed or stopped
+                self._send_state(target_state=TargetState.OPEN, current_state=None)
                 await self._move_gate(TargetState.OPEN)
-        elif target == TargetState.CLOSED:
-            self._send_target_state(TargetState.CLOSED)
-            if state == CurrentState.CLOSED:
-                self._send_current_state(CurrentState.CLOSED)
             else:
-                self._send_current_state(CurrentState.CLOSING)
+                self._send_state(target_state=TargetState.OPEN, current_state=None)
+        else:
+            if state == CurrentState.OPENING:
+                # requesting to close the gate while it is opening will reset the target to open
+                self._send_state(target_state=TargetState.OPEN, current_state=None)
+            elif state == CurrentState.OPEN or state == CurrentState.STOPPED:
+                # only close the gate if it is currently open or stopped
+                self._send_state(target_state=TargetState.CLOSED, current_state=None)
                 await self._move_gate(TargetState.CLOSED)
+            else:
+                self._send_state(target_state=TargetState.CLOSED, current_state=None)
 
     async def get_current_gate_state(self) -> CurrentState:
         return self._get_current_gate_state()
@@ -80,17 +87,30 @@ class GateService:
 
     def _send_current_state_update(self, event):
         state = self._get_current_gate_state()
-        self._send_current_state(state)
+        # set targetdoorstate
+        if state == CurrentState.OPEN or state == CurrentState.OPENING or state == CurrentState.STOPPED:
+            target_state = TargetState.OPEN
+        else:
+            target_state = TargetState.CLOSED
+        # set currentdoorstate
+        # The following condition is a workaround for a homebridge bug:
+        # Sending OPENING leads to a push message to the phone that the gate is already open.
+        # Sending CLOSING while the gate is actually OPENING leads to the right message
+        # and inhibits the premature push message.
+        if state == CurrentState.OPENING:
+            current_state = CurrentState.CLOSING
+        else:
+            current_state = state
+        self._send_state(target_state, current_state)
 
-    def _send_target_state(self, target: TargetState) -> bool:
-        params = {'accessoryId': config.accessory_id, 'targetdoorstate': target.value}
+    def _send_state(self, target_state: typing.Optional[TargetState], current_state: typing.Optional[CurrentState]):
+        params = {'accessoryId': config.accessory_id}
+        if target_state is not None:
+            params['targetdoorstate'] = target_state.value
+        if current_state is not None:
+            params['currentdoorstate'] = current_state.value
         r = httpx.get(f'{config.webhook_url}', params=params)
-        return True if r.status_code == 200 else False
-
-    def _send_current_state(self, current: CurrentState) -> bool:
-        params = {'accessoryId': config.accessory_id, 'currentdoorstate': current.value}
-        r = httpx.get(f'{config.webhook_url}', params=params)
-        return True if r.status_code == 200 else False
+        r.raise_for_status()
 
     async def _move_gate(self, target: TargetState) -> None:
         # FAAC-E124 Configuration
