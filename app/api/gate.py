@@ -1,4 +1,4 @@
-from fastapi import Depends, APIRouter, BackgroundTasks
+from fastapi import Depends, APIRouter
 from fastapi.security import HTTPBasicCredentials
 from starlette.responses import Response
 from starlette.status import HTTP_200_OK
@@ -20,9 +20,7 @@ async def get_gate_state():
 
 
 @gate.post('')
-async def move_gate(payload: GateIn,
-                    background_tasks: BackgroundTasks,
-                    credentials: HTTPBasicCredentials = Depends(security)):
+async def move_gate(payload: GateIn, credentials: HTTPBasicCredentials = Depends(security)):
     auth.authorize_request(credentials)
-    background_tasks.add_task(gate_service.request_gate_movement, payload.action)
+    await gate_service.request_gate_movement(payload.action)
     return Response(status_code=HTTP_200_OK)
