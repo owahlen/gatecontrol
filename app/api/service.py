@@ -38,20 +38,14 @@ class GateService:
                 self._send_state(target_state=TargetState.CLOSED, current_state=None)
             elif state == CurrentState.CLOSED or state == CurrentState.STOPPED:
                 # only open the gate if it is currently closed or stopped
-                self._send_state(target_state=TargetState.OPEN, current_state=None)
                 await self._move_gate(TargetState.OPEN)
-            else:
-                self._send_state(target_state=TargetState.OPEN, current_state=None)
         else:
             if state == CurrentState.OPENING:
                 # requesting to close the gate while it is opening will reset the target to open
                 self._send_state(target_state=TargetState.OPEN, current_state=None)
             elif state == CurrentState.OPEN or state == CurrentState.STOPPED:
                 # only close the gate if it is currently open or stopped
-                self._send_state(target_state=TargetState.CLOSED, current_state=None)
                 await self._move_gate(TargetState.CLOSED)
-            else:
-                self._send_state(target_state=TargetState.CLOSED, current_state=None)
 
     async def get_current_gate_state(self) -> CurrentState:
         return self._get_current_gate_state()
