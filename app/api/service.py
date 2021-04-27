@@ -34,24 +34,28 @@ class GateService:
         state = self._get_current_gate_state()
         if target_state == TargetState.OPEN:
             if state == CurrentState.CLOSING:
-                # requesting to open the gate while it is closing will reset the target to closed
-                self._send_state(target_state=TargetState.CLOSED, current_state=None)
+                # stop the closing
+                await self._pulse_in1()
+                self._send_state(None, CurrentState.STOPPED)
+                # open the gate
+                await self._pulse_in1()
+                self._send_state(None, CurrentState.OPENING)
+                self.last_stable_state = CurrentState.OPENING
             elif state == CurrentState.CLOSED or state == CurrentState.STOPPED:
                 # only open the gate if it is currently closed or stopped
-                self._send_state(target_state=TargetState.OPEN, current_state=None)
-                await self._move_gate(TargetState.OPEN)
-            else:
-                self._send_state(target_state=TargetState.OPEN, current_state=None)
+                await self._pulse_in1()
         else:
             if state == CurrentState.OPENING:
-                # requesting to close the gate while it is opening will reset the target to open
-                self._send_state(target_state=TargetState.OPEN, current_state=None)
+                # stop the opening
+                await self._pulse_in1()
+                self._send_state(None, CurrentState.STOPPED)
+                # close the gate
+                await self._pulse_in1()
+                self._send_state(None, CurrentState.CLOSING)
+                self.last_stable_state = CurrentState.OPENING
             elif state == CurrentState.OPEN or state == CurrentState.STOPPED:
                 # only close the gate if it is currently open or stopped
-                self._send_state(target_state=TargetState.CLOSED, current_state=None)
-                await self._move_gate(TargetState.CLOSED)
-            else:
-                self._send_state(target_state=TargetState.CLOSED, current_state=None)
+                await self._pulse_in1()
 
     async def get_current_gate_state(self) -> CurrentState:
         return self._get_current_gate_state()
@@ -112,10 +116,11 @@ class GateService:
         r = httpx.get(f'{config.webhook_url}', params=params)
         r.raise_for_status()
 
-    async def _move_gate(self, target: TargetState) -> None:
+    async def _pulse_in1(self) -> None:
         # FAAC-E124 Configuration
         # IN 1: OPEN A (LO = E or EP)
         self.piface.relays[0].value = 1
         await sleep(PULSE_LENGTH)
         self.piface.relays[0].value = 0
+        await sleep(PULSE_LENGTH)
         return
