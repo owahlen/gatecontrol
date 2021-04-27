@@ -52,7 +52,7 @@ class GateService:
                 # close the gate
                 await self._pulse_in1()
                 self._send_state(None, CurrentState.CLOSING)
-                self.last_stable_state = CurrentState.OPENING
+                self.last_stable_state = CurrentState.CLOSING
             elif state == CurrentState.OPEN or state == CurrentState.STOPPED:
                 # only close the gate if it is currently open or stopped
                 await self._pulse_in1()
