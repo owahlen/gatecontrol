@@ -86,6 +86,10 @@ class GateService:
             return CurrentState.CLOSING
         elif not out1_open and not out2_closed and self.last_stable_state == CurrentState.CLOSED:
             return CurrentState.OPENING
+        elif not out1_open and not out2_closed and self.last_stable_state == CurrentState.OPENING:
+            return CurrentState.OPENING
+        elif not out1_open and not out2_closed and self.last_stable_state == CurrentState.CLOSING:
+            return CurrentState.CLOSING
         else:
             return CurrentState.STOPPED
 
