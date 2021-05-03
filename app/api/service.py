@@ -4,6 +4,7 @@ from enum import Enum
 
 import httpx
 import pifacedigitalio
+from pifacecommon.interrupts import InterruptEvent
 
 from app.api.config import config
 
@@ -68,6 +69,7 @@ class GateService:
         self.event_listener = pifacedigitalio.InputEventListener(chip=self.piface)
         self.event_listener.register(0, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
         self.event_listener.register(1, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
+        self.event_listener.register(3, pifacedigitalio.IODIR_BOTH, self._set_relay_state)  # for debugging
         self.event_listener.activate()
 
     def _get_current_gate_state(self) -> CurrentState:
@@ -128,3 +130,6 @@ class GateService:
         self.piface.relays[0].value = 0
         await sleep(PULSE_LENGTH)
         return
+
+    def _set_relay_state(self, event: InterruptEvent):
+        self.piface.relays[0].value = int(event.direction == pifacedigitalio.IODIR_ON)
