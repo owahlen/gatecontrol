@@ -1,9 +1,10 @@
 # Gatecontrol
+
+[![Build Status](https://app.travis-ci.com/owahlen/gatecontrol.svg?branch=main)](https://app.travis-ci.com/owahlen/gatecontrol)
+
 REST service for a Raspberry Pi operating an FAAC-E124 gate control unit.
 
 ## Hardware Architecture
-
-
 
 ## FAAC-E124 Control Unit Configuration
 Please refer to the [FAAC-E124 manual](http://www.faac.co.uk/productfiles/245_Manual_rad0ADBE.pdf)
