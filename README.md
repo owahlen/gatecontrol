@@ -21,7 +21,7 @@ that do not natively support HomeKit. The software can be installed on a
 [Raspberry Pi](https://www.raspberrypi.org/products/raspberry-pi-4-model-b)
 that is placed into the local network.
 Homebridge registers with the home hub and exposes accessories to HomeKit through installable plugins.
-It is configured through a web interface under `http://ip_address_of_raspberrypi:8581`.
+It is configured through a web interface under `http://ip_address_of_homebridge:8581`.
 
 For the gate in this project to be exposed as HomeKit accessory the
 [homebridge-http-webhooks](https://github.com/benzman81/homebridge-http-webhooks) plugin
