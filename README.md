@@ -4,7 +4,8 @@
 
 REST service for a Raspberry Pi operating an FAAC-E124 gate control unit.
 
-## Hardware Architecture
+## Circuit Diagram
+![Circuit Diagram](documentation/circuit-diagram.png)
 
 ## FAAC-E124 Control Unit Configuration
 Please refer to the [FAAC-E124 manual](http://www.faac.co.uk/productfiles/245_Manual_rad0ADBE.pdf)
