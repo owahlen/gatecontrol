@@ -37,6 +37,10 @@ echo -n user:password | base64
 Also note that `ip_address_of_pi_zero` needs to be replaced with the ip address
 of the Raspberry Pi Zero WH mentioned below.
 
+The components of the system are shown in the following diagram.
+
+![component diagram](http://www.plantuml.com/plantuml/proxy?src=https://raw.github.com/owahlen/gatecontrol/main/documentation/architecture.puml)
+
 ## Gate Hardware
 The hardware that is used to control the entrance gate is a FAAC-E124 Control Unit.
 
