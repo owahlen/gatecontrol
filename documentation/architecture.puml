@@ -29,7 +29,7 @@ homeapp <-right-> homekit_service
 homekit_service <--> home_hub
 home_hub <--> homebridge
 homebridge <-right-> gatecontrol
-gatecontrol <--> e124: interfaces with
+gatecontrol <--> e124: interfaces with\lDIDO module and\lOptocoupler
 e124 <-right-> gate: controls
 
 @enduml
