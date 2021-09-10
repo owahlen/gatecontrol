@@ -1,0 +1,18 @@
+{
+  "webhook_port": "51828",
+  "garagedooropeners": [
+    {
+      "id": "entrancegate",
+      "name": "Entrance",
+      "open_url": "http://ip_address_of_pi_zero:8000/gate",
+      "open_method": "POST",
+      "open_body": "{\"action\": 0}",
+      "open_headers": "{\"Authorization\": \"Basic xxxxxxxxxxxxxxxxxxxxxxxxxx==\", \"Content-Type\": \"application/json\"}",
+      "close_url": "http://ip_address_of_pi_zero:8000/gate",
+      "close_method": "POST",
+      "close_body": "{\"action\": 1}",
+      "close_headers": "{\"Authorization\": \"Basic xxxxxxxxxxxxxxxxxxxxxxxxxx==\", \"Content-Type\": \"application/json\"}"
+    }
+  ],
+  "platform": "HttpWebHooks"
+}
