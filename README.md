@@ -86,7 +86,7 @@ As a next step the _gatecontrol_ web service must be installed on the Pi Zero.
 This services operate the gate hardware and interfaces with the homebridge-http-webhooks plugin.
 Copy the whole `gatecontrol` directory into the folder `/home/pi` on the device.
 ```
-scp -R gatecontrol pi@ip_address_of_pi_zero:
+scp -r gatecontrol pi@ip_address_of_pi_zero:
 ```
 
 Make sure python3 and all required modules are installed:

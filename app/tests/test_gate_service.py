@@ -6,11 +6,11 @@ from aiounittest import async_test
 from pifacecommon.interrupts import InterruptEvent, IODIR_ON
 
 from app.api.config import DEFAULT_WEBHOOK_URL, DEFAULT_ACCESSORY_ID
-from app.api.service import GateService, TargetState, CurrentState
+from app.api.gate_service import GateService, TargetState, CurrentState
 
 
-@patch('app.api.service.httpx')
-class TestService(unittest.TestCase):
+@patch('app.api.gate_service.httpx')
+class TestGateService(unittest.TestCase):
 
     def setUp(self) -> None:
         # create piface_mock

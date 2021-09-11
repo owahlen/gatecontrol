@@ -5,3 +5,4 @@ requests==2.26.0
 aiounittest==1.4.0
 pifacedigitalio==3.0.5
 pifacecommon==4.2.2
+psutil==5.8.0

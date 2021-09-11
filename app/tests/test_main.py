@@ -12,7 +12,7 @@ class TestAuth(unittest.TestCase):
         os.environ[HOST] = '10.0.0.1'
         os.environ[PORT] = '1234'
         config.reload()
-        with patch('app.api.service.GateService'):
+        with patch('app.api.gate_service.GateService'):
             from app import main
             with patch.object(main, "uvicorn") as uvicorn_run_mock:
                 with patch.object(main, "__name__", "__main__"):
@@ -27,7 +27,7 @@ class TestAuth(unittest.TestCase):
 
     def test_init_default_host_port(self):
         # setup
-        with patch('app.api.service.GateService'):
+        with patch('app.api.gate_service.GateService'):
             from app import main
             with patch.object(main, "uvicorn") as uvicorn_run_mock:
                 with patch.object(main, "__name__", "__main__"):

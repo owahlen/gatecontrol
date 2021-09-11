@@ -5,21 +5,21 @@ from starlette.status import HTTP_200_OK
 
 from app.api import auth
 from app.api.auth import ConfigurableHTTPBasic
+from app.api.gate_service import GateService
 from app.api.models import GateOut, GateIn
-from app.api.service import GateService
 
-gate = APIRouter()
+gate_router = APIRouter()
 security = ConfigurableHTTPBasic()
 gate_service = GateService()
 
 
-@gate.get('', response_model=GateOut)
+@gate_router.get('', response_model=GateOut)
 async def get_gate_state():
     state = await gate_service.get_current_gate_state()
     return {"currentdoorstate": state}
 
 
-@gate.post('')
+@gate_router.post('')
 async def move_gate(payload: GateIn,
                     background_tasks: BackgroundTasks,
                     credentials: HTTPBasicCredentials = Depends(security)):

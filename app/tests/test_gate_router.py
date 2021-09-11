@@ -4,18 +4,18 @@ from unittest.mock import patch
 
 from app.tests.testing_utils import AsyncMock
 
-with patch('app.api.service.GateService'):
-    import app.api.gate
+with patch('app.api.gate_service.GateService'):
+    import app.api.gate_router
 
 from fastapi.testclient import TestClient
 from starlette import status
 
 from app.api.config import config
-from app.api.service import TargetState
+from app.api.gate_service import TargetState
 from app.main import app
 
 
-@patch('app.api.gate.gate_service', new_callable=AsyncMock)
+@patch('app.api.gate_router.gate_service', new_callable=AsyncMock)
 class TestGateRouter(unittest.TestCase):
 
     def setUp(self) -> None:
