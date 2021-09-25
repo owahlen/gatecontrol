@@ -7,6 +7,7 @@ import pifacedigitalio
 from pifacecommon.interrupts import InterruptEvent
 
 from app.api.config import config
+from app.api.logger import logger
 
 PULSE_LENGTH = 0.5
 
@@ -120,6 +121,7 @@ class GateService:
         if current_state is not None:
             params['currentdoorstate'] = current_state.value
         r = httpx.get(f'{config.webhook_url}', params=params)
+        logger.info("GET %s", r.url)
         r.raise_for_status()
 
     async def _pulse_in1(self) -> None:
