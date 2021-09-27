@@ -2,6 +2,7 @@ import os
 
 from app.api.logger import logger
 
+LOG_LEVEL = 'LOG_LEVEL'
 HOST = 'HOST'
 PORT = 'PORT'
 BASIC_AUTH_USERNAME = 'BASIC_AUTH_USERNAME'
@@ -9,6 +10,7 @@ BASIC_AUTH_PASSWORD = 'BASIC_AUTH_PASSWORD'
 WEBHOOK_URL = 'WEBHOOK_URL'
 ACCESSORY_ID = 'ACCESSORY_ID'
 
+DEAULT_LOG_LEVEL = "INFO"
 DEFAULT_HOST = "0.0.0.0"
 DEFAULT_PORT = "8000"
 DEFAULT_WEBHOOK_URL = "http://localhost:51828"
@@ -20,6 +22,8 @@ class Config:
         self.reload()
 
     def reload(self):
+        log_level = os.getenv(LOG_LEVEL, DEAULT_LOG_LEVEL)
+        logger.setLevel(log_level)
         self.host = os.getenv(HOST, DEFAULT_HOST)
         self.port = os.getenv(PORT, DEFAULT_PORT)
         self.basic_auth_username = os.getenv(BASIC_AUTH_USERNAME)

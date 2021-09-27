@@ -11,6 +11,7 @@ Environment="WEBHOOK_URL=http://ip_address_of_homebridge:51828"
 Environment="BASIC_AUTH_USERNAME=user_chosen_for_basic_auth"
 Environment="BASIC_AUTH_PASSWORD=password_chosen_for_basic_auth"
 Environment="ACCESSORY_ID=entrancegate"
+Environment="LOG_LEVEL=INFO"
 ExecStart=/usr/bin/python3 /home/pi/gatecontrol/app/main.py
 Restart=on-abort
 

@@ -64,6 +64,9 @@ class GateService:
 
     def _init_piface(self):
         self.piface = pifacedigitalio.PiFaceDigital()
+        # disable input pullups on pins 0 and 1
+        self.piface.gppub.bits[0]=0
+        self.piface.gppub.bits[1]=0
         # relay[0] sends a short pulse to operate the gate. 0 is the inactive state.
         self.piface.relays[0].value = 0
         # register event listener on input_pins[0] and input_pins[1]
@@ -79,6 +82,7 @@ class GateService:
         # OUT 2: CLOSED (o2 = 06)
         out1_open = self.piface.input_pins[0].value
         out2_closed = self.piface.input_pins[1].value
+        logger.debug("OUT1: %d, OUT2: %d", out1_open, out2_closed)
         if out1_open and not out2_closed:
             self.last_stable_state = CurrentState.OPEN
             return CurrentState.OPEN
