@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock, PropertyMock, call
 
 import pifacedigitalio
 from aiounittest import async_test
-from pifacecommon.interrupts import InterruptEvent, IODIR_ON
+from pifacecommon.interrupts import IODIR_ON
 
 from app.api.config import DEFAULT_WEBHOOK_URL, DEFAULT_ACCESSORY_ID
 from app.api.gate_service import GateService, TargetState, CurrentState
