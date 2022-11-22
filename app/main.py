@@ -14,6 +14,7 @@ app.include_router(health_router, prefix='/health', tags=['health'])
 
 def init():
     if __name__ == "__main__":
-        uvicorn.run(app, host=config.host, port=int(config.port))
+        uvicorn.run("main:app", host=config.host, port=int(config.port), log_level="error")
+
 
 init()
