@@ -1,7 +1,6 @@
-import unittest
 from unittest.mock import patch, MagicMock
 
-from aiounittest import async_test
+from aiounittest import AsyncTestCase
 from psutil._common import shwtemp
 from psutil._pslinux import svmem
 
@@ -12,12 +11,11 @@ from app.api.models import Health
 @patch('app.api.health_service.os')
 @patch('app.api.health_service.psutil')
 @patch('app.api.health_service.time')
-class TestHealthService(unittest.TestCase):
+class TestHealthService(AsyncTestCase):
 
     def setUp(self) -> None:
         self.health_service = HealthService()
 
-    @async_test
     async def test_get_health(self, mock_time, mock_psutil, mock_os):
         # setup
         # mock os.getloadavg()

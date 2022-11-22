@@ -1,8 +1,7 @@
-import unittest
 from unittest.mock import patch, MagicMock, PropertyMock, call
 
 import pifacedigitalio
-from aiounittest import async_test
+from aiounittest import AsyncTestCase
 from pifacecommon.interrupts import IODIR_ON
 
 from app.api.config import DEFAULT_WEBHOOK_URL, DEFAULT_ACCESSORY_ID
@@ -10,7 +9,7 @@ from app.api.gate_service import GateService, TargetState, CurrentState
 
 
 @patch('app.api.gate_service.httpx')
-class TestGateService(unittest.TestCase):
+class TestGateService(AsyncTestCase):
 
     def setUp(self) -> None:
         # create piface_mock
@@ -34,7 +33,6 @@ class TestGateService(unittest.TestCase):
                                                           self.gate_service._set_relay_state)
         self.event_listener_mock.activate.assert_called_once()
 
-    @async_test
     async def test_request_gate_movement_open_to_open(self, mock_httpx):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPEN)
@@ -44,7 +42,6 @@ class TestGateService(unittest.TestCase):
         mock_httpx.get.assert_not_called()
         self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
-    @async_test
     async def test_request_gate_movement_closed_to_open(self, mock_httpx):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSED)
@@ -54,7 +51,6 @@ class TestGateService(unittest.TestCase):
         mock_httpx.get.assert_not_called()
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0)])  # one pulse of the relay
 
-    @async_test
     async def test_request_gate_movement_closed_to_closed(self, mock_httpx):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSED)
@@ -64,7 +60,6 @@ class TestGateService(unittest.TestCase):
         mock_httpx.get.assert_not_called()
         self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
-    @async_test
     async def test_request_gate_movement_open_to_closed(self, mock_httpx):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPEN)
@@ -74,7 +69,6 @@ class TestGateService(unittest.TestCase):
         mock_httpx.get.assert_not_called()
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0)])  # one pulse of the relay
 
-    @async_test
     async def test_request_gate_movement_opening_to_open(self, mock_httpx):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.OPENING)
@@ -84,7 +78,6 @@ class TestGateService(unittest.TestCase):
         mock_httpx.get.assert_not_called()
         self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
-    @async_test
     async def test_request_gate_movement_opening_to_closed(self, mock_httpx):
         # setup
         mock_httpx.get = MagicMock(return_value=MagicMock())
@@ -101,7 +94,6 @@ class TestGateService(unittest.TestCase):
         # relay init, open pulse, close pulse
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0), call(1), call(0)])
 
-    @async_test
     async def test_request_gate_movement_closing_to_closed(self, mock_httpx):
         # setup
         self.gate_service._get_current_gate_state = MagicMock(return_value=CurrentState.CLOSING)
@@ -111,7 +103,6 @@ class TestGateService(unittest.TestCase):
         mock_httpx.get.assert_not_called()
         self.relays0_mock.assert_called_once_with(0)  # just the initialization of the relay
 
-    @async_test
     async def test_request_gate_movement_closing_to_open(self, mock_httpx):
         # setup
         mock_httpx.get = MagicMock(return_value=MagicMock())
@@ -128,7 +119,6 @@ class TestGateService(unittest.TestCase):
         # relay init, close pulse, open pulse
         self.relays0_mock.assert_has_calls([call(0), call(1), call(0), call(1), call(0)])
 
-    @async_test
     async def test_get_current_gate_state(self, mock_httpx):
         # setup
         self.piface_mock.input_pins[0].value = 1  # OPEN or PAUSED
@@ -236,7 +226,7 @@ class TestGateService(unittest.TestCase):
     def test_set_relay_state(self, mock_httpx):
         # setup
         event_mock = MagicMock()
-        direction_mock = PropertyMock(return_value = IODIR_ON)
+        direction_mock = PropertyMock(return_value=IODIR_ON)
         type(event_mock).direction = direction_mock
         # when
         self.gate_service._set_relay_state(event_mock)

@@ -12,9 +12,9 @@ app.include_router(gate_router, prefix='/gate', tags=['gate'])
 app.include_router(health_router, prefix='/health', tags=['health'])
 
 
-def init():
-    if __name__ == "__main__":
-        uvicorn.run("main:app", host=config.host, port=int(config.port), log_level="error")
+def start_server():
+    uvicorn.run('main:app', host=config.host, port=int(config.port))
 
 
-init()
+if __name__ == "__main__":
+    start_server()
