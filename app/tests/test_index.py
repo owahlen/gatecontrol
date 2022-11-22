@@ -17,7 +17,7 @@ class TestIndexRouter(unittest.TestCase):
 
     def test_index_get(self):
         # when
-        response = self.client.get("/", allow_redirects=False)
+        response = self.client.get("/", follow_redirects=False)
         # then
         self.assertEqual(status.HTTP_307_TEMPORARY_REDIRECT, response.status_code)
         self.assertEqual("/gate", response.headers['location'])

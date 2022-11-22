@@ -1,6 +1,6 @@
 # Gatecontrol
 
-[![Build Status](https://app.travis-ci.com/owahlen/gatecontrol.svg?branch=main)](https://app.travis-ci.com/owahlen/gatecontrol)
+[![Build Status](https://github.com/owahlen/gatecontrol/actions/workflows/gatecontrol.yml/badge.svg?branch=main)](https://github.com/owahlen/gatecontrol)
 
 REST service for a Raspberry Pi Zero operating an FAAC-E124 gate control unit.
 
