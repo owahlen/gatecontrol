@@ -121,3 +121,6 @@ The basic authentication is activated if both `BASIC_AUTH_USERNAME` and `BASIC_A
 ### _gatecontrol_ API Documentation
 The service utilizes the [FastAPI](https://fastapi.tiangolo.com/) framework.
 It generates an OpenAPI under the URL `http://HOST:PORT/docs` e.g. http://ip_address_of_pi_zero:8000/docs.
+
+## Related Projects
+* [FAAC-E145-Gate-Connect](https://github.com/jens62/FAAC-E145-Gate-Connect) - A similar project specifically for the **FAAC E145** board.
