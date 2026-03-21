@@ -13,7 +13,7 @@ app.include_router(health_router, prefix='/health', tags=['health'])
 
 
 def start_server():
-    uvicorn.run('main:app', host=config.host, port=int(config.port))
+    uvicorn.run(app, host=config.host, port=int(config.port))
 
 
 if __name__ == "__main__":
