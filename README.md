@@ -117,6 +117,13 @@ The basic authentication is activated if both `BASIC_AUTH_USERNAME` and `BASIC_A
 * `BASIC_AUTH_PASSWORD`: The password that must be passed to the service in a basic auth header
 * `WEBHOOK_URL` (http://localhost:51828): The URL of the homebridge running the _Homebridge Webhooks_ plugin
 * `ACCESSORY_ID` (gatecontrol): The accessory ID as configured as gate in the _Homebridge Webhooks_ plugin
+* `SPI_BUS` (0): SPI bus used by the DIDO board
+* `SPI_CHIP_SELECT` (0): SPI chip select used by the DIDO board
+* `SPI_HARDWARE_ADDR` (0): MCP23S17 hardware address configured on the DIDO board
+* `DIDO_RELAY_PIN` (0): DIDO output pin used for `Relay0`
+
+### Current DIDO Mode
+The current implementation only drives `Relay0` over SPI. It does not use `libgpiod` and does not read gate status inputs yet, so the service keeps an assumed state in memory after each successful command.
 
 ### _gatecontrol_ API Documentation
 The service utilizes the [FastAPI](https://fastapi.tiangolo.com/) framework.

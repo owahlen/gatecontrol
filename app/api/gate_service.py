@@ -3,10 +3,9 @@ from asyncio import sleep
 from enum import Enum
 
 import httpx
-import pifacedigitalio
-from pifacecommon.interrupts import InterruptEvent
 
 from app.api.config import config
+from app.api.gate_hardware import DidoSpiRelayHardware, GateHardware
 from app.api.logger import logger
 
 PULSE_LENGTH = 0.5
@@ -27,12 +26,28 @@ class CurrentState(int, Enum):
 
 class GateService:
 
-    def __init__(self):
-        self._init_piface()
-        self.last_stable_state = None
-        self.last_stable_state = self._get_current_gate_state()
+    def __init__(self, hardware: typing.Optional[GateHardware] = None):
+        self.hardware = hardware or DidoSpiRelayHardware.from_config()
+        if self.hardware.supports_inputs:
+            self.last_stable_state = self._get_current_gate_state()
+            self.hardware.start(self._handle_input_event)
+        else:
+            self.last_stable_state = CurrentState.STOPPED
 
     async def request_gate_movement(self, target_state: TargetState) -> None:
+        if not self.hardware.supports_inputs:
+            state = self._get_current_gate_state()
+            if target_state == TargetState.OPEN and state == CurrentState.OPEN:
+                return
+            if target_state == TargetState.CLOSED and state == CurrentState.CLOSED:
+                return
+            await self._pulse_in1()
+            self.last_stable_state = (
+                CurrentState.OPEN if target_state == TargetState.OPEN else CurrentState.CLOSED
+            )
+            self._send_state(target_state, self.last_stable_state)
+            return
+
         state = self._get_current_gate_state()
         if target_state == TargetState.OPEN:
             if state == CurrentState.CLOSING:
@@ -62,26 +77,14 @@ class GateService:
     async def get_current_gate_state(self) -> CurrentState:
         return self._get_current_gate_state()
 
-    def _init_piface(self):
-        self.piface = pifacedigitalio.PiFaceDigital()
-        # disable input pullups on pins 0 and 1
-        self.piface.gppub.bits[0]=0
-        self.piface.gppub.bits[1]=0
-        # relay[0] sends a short pulse to operate the gate. 0 is the inactive state.
-        self.piface.relays[0].value = 0
-        # register event listener on input_pins[0] and input_pins[1]
-        self.event_listener = pifacedigitalio.InputEventListener(chip=self.piface)
-        self.event_listener.register(0, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
-        self.event_listener.register(1, pifacedigitalio.IODIR_BOTH, self._send_current_state_update)
-        self.event_listener.register(3, pifacedigitalio.IODIR_BOTH, self._set_relay_state)  # for debugging
-        self.event_listener.activate()
-
     def _get_current_gate_state(self) -> CurrentState:
+        if not self.hardware.supports_inputs:
+            return self.last_stable_state
         # FAAC-E124 Configuration
         # OUT 1: OPEN or PAUSE (o1 = 05)
         # OUT 2: CLOSED (o2 = 06)
-        out1_open = self.piface.input_pins[0].value
-        out2_closed = self.piface.input_pins[1].value
+        out1_open = self.hardware.read_open_input()
+        out2_closed = self.hardware.read_closed_input()
         logger.debug("OUT1: %d, OUT2: %d", out1_open, out2_closed)
         if out1_open and not out2_closed:
             self.last_stable_state = CurrentState.OPEN
@@ -98,7 +101,11 @@ class GateService:
         elif not out1_open and not out2_closed and self.last_stable_state == CurrentState.CLOSING:
             return CurrentState.CLOSING
         else:
+            self.last_stable_state = CurrentState.STOPPED
             return CurrentState.STOPPED
+
+    def _handle_input_event(self, event: typing.Any):
+        self._send_current_state_update(event)
 
     def _send_current_state_update(self, event):
         state = self._get_current_gate_state()
@@ -131,11 +138,8 @@ class GateService:
     async def _pulse_in1(self) -> None:
         # FAAC-E124 Configuration
         # IN 1: OPEN A (LO = E or EP)
-        self.piface.relays[0].value = 1
+        self.hardware.set_relay(True)
         await sleep(PULSE_LENGTH)
-        self.piface.relays[0].value = 0
+        self.hardware.set_relay(False)
         await sleep(PULSE_LENGTH)
         return
-
-    def _set_relay_state(self, event: InterruptEvent):
-        self.piface.relays[0].value = int(event.direction == pifacedigitalio.IODIR_ON)

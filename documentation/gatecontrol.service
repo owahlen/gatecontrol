@@ -12,6 +12,10 @@ Environment="BASIC_AUTH_USERNAME=user_chosen_for_basic_auth"
 Environment="BASIC_AUTH_PASSWORD=password_chosen_for_basic_auth"
 Environment="ACCESSORY_ID=entrancegate"
 Environment="LOG_LEVEL=INFO"
+Environment="SPI_BUS=0"
+Environment="SPI_CHIP_SELECT=0"
+Environment="SPI_HARDWARE_ADDR=0"
+Environment="DIDO_RELAY_PIN=0"
 ExecStart=/usr/bin/python3 /home/pi/gatecontrol/app/main.py
 Restart=on-abort
 
