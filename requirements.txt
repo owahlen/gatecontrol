@@ -1,8 +1,8 @@
-fastapi==0.87.0
-uvicorn==0.20.0
-httpx==0.23.1
-requests==2.28.1
-aiounittest==1.4.2
+fastapi==0.135.1
+uvicorn==0.42.0
+httpx==0.28.1
+requests==2.32.5
+aiounittest==1.5.0
 pifacedigitalio==3.0.5
 pifacecommon==4.2.2
-psutil==5.9.4
+psutil==7.2.2

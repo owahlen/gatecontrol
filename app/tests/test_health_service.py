@@ -1,8 +1,7 @@
+from types import SimpleNamespace
 from unittest.mock import patch, MagicMock
 
 from aiounittest import AsyncTestCase
-from psutil._common import shwtemp
-from psutil._pslinux import svmem
 
 from app.api.health_service import HealthService
 from app.api.models import Health
@@ -22,13 +21,23 @@ class TestHealthService(AsyncTestCase):
         mock_os.getloadavg = MagicMock(return_value=(1.0, 0.5, 0.1))
 
         # mock psutil.sensor_temperatures()
-        temp = shwtemp(label='', current=51.0, high=None, critical=None)
+        temp = SimpleNamespace(label='', current=51.0, high=None, critical=None)
         mock_psutil.sensors_temperatures = MagicMock(return_value={"cpu_thermal": [temp]})
 
         # mock psutil.virtual_memory()
-        mem = svmem(total=8282419200, available=7638609920, percent=7.8, used=342773760, free=7189024768,
-                    active=283893760, inactive=540917760, buffers=150794240, cached=599826432,
-                    shared=39407616, slab=206086144)
+        mem = SimpleNamespace(
+            total=8282419200,
+            available=7638609920,
+            percent=7.8,
+            used=342773760,
+            free=7189024768,
+            active=283893760,
+            inactive=540917760,
+            buffers=150794240,
+            cached=599826432,
+            shared=39407616,
+            slab=206086144
+        )
         mock_psutil.virtual_memory = MagicMock(return_value=mem)
 
         # mock time.time()
