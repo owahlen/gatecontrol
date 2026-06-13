@@ -14,9 +14,10 @@ package "Home Network" as home {
   node "home hub\l(e.g. Apple TV)" as home_hub #white
   node "Raspberry Pi" as pi #white {
     [Homebridge\lService] as homebridge
+    [MQTT\lBroker] as mqtt
   }
   node "Raspberry Pi Zero" as pi_zero #white {
-    [gatecontrol\lweb service] as gatecontrol
+    [gatecontrol\lGo service] as gatecontrol
   }
 }
 
@@ -28,8 +29,9 @@ user -right-> homeapp
 homeapp <-right-> homekit_service
 homekit_service <--> home_hub
 home_hub <--> homebridge
-homebridge <--> gatecontrol: homebridge-\lhttp-\lwebhooks\lplugin
-gatecontrol <--> e124: interfaces with\lDIDO module and\lOptocoupler
+homebridge <--> mqtt: MQTT accessory\lplugin
+mqtt <--> gatecontrol: command,\lstate,\lavailability
+gatecontrol <--> e124: pulses IN 1\lvia DIDO module\land Optocoupler
 e124 <-right-> gate: controls
 
 @enduml
